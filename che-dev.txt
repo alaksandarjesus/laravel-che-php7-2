@@ -1,0 +1,56 @@
+metadata:
+  name: wksp-zp6o
+projects:
+  - name: myproject
+    source:
+      location: 'git clone git@bitbucket.org:myusername/myproject.git'
+      type: git
+      branch: master
+attributes:
+  persistVolumes: 'false'
+components:
+  - id: redhat/php-debugger/latest
+    memoryLimit: 256Mi
+    type: chePlugin
+  - id: redhat/php/latest
+    memoryLimit: 1Gi
+    type: chePlugin
+  - mountSources: true
+    endpoints:
+      - name: 8080/tcp
+        port: 8080
+    command:
+      - tail
+      - '-f'
+      - /dev/null
+    memoryLimit: 512Mi
+    type: dockerimage
+    volumes:
+      - name: composer
+        containerPath: /home/user/.composer
+    alias: php
+    image: registry.access.redhat.com/ubi7/php-72
+  - mountSources: false
+    endpoints:
+      - name: db
+        attributes:
+          discoverable: 'true'
+        port: 3306
+    command:
+      - tail
+      - '-f'
+      - /dev/null
+    memoryLimit: 256Mi
+    type: dockerimage
+    alias: mysql
+    image: docker.io/centos/mysql-57-centos7
+    env:
+      - value: user
+        name: MYSQL_USER
+      - value: root
+        name: MYSQL_PASSWORD
+      - value: root
+        name: MYSQL_ROOT_PASSWORD
+      - value: database
+        name: MYSQL_DATABASE
+apiVersion: 1.0.0
